@@ -404,5 +404,15 @@ else
   )
 fi
 
+# Add line after command
+function add_line {
+  if [[ -z "${PS1_NEWLINE_LOGIN}" ]]; then
+    PS1_NEWLINE_LOGIN=true
+  else
+    printf '\n'
+  fi
+}
+PROMPT_COMMAND='add_line'
+
 # dynamically set the  PS1
 PROMPT_COMMAND="pureline_ps1; $PROMPT_COMMAND"
