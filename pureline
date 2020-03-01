@@ -284,7 +284,45 @@ function return_code_module {
   fi
 }
 
+# -----------------------------------------------------------------------------
+# Helper function to return normal or super user prompt character
+function prompt_char {
+    [[ ${EUID} -eq 0 ]] && echo "#" || echo "$"
+}
 
+# -----------------------------------------------------------------------------
+# append to prompt: append a '$' prompt with optional return code for previous command
+# arg: $1 foreground color
+# arg; $2 background color
+function prompt_module {
+    local bg_color="$1"
+    local fg_color="$2"
+    local content=" $(prompt_char) "
+
+    if [ ${EUID} -eq 0 ]; then
+        if [ -n "$PL_PROMPT_ROOT_FG" ]; then
+            fg_color="$PL_PROMPT_ROOT_FG"
+        fi
+        if [ -n "$PL_PROMPT_ROOT_BG" ]; then
+            bg_color="$PL_PROMPT_ROOT_BG"
+        fi
+    fi
+    PS1+="$(section_end $fg_color $bg_color)"
+    PS1+="$(section_content $fg_color $bg_color "$content")"
+    __last_color="$bg_color"
+}
+
+# -----------------------------------------------------------------------------
+# append to prompt: end the current promptline and start a newline
+function newline_module {
+    if [ -n "$__last_color" ]; then
+        PS1+="$(section_end $__last_color 'Default')"
+    fi
+    PS1+="\n"
+    unset __last_color
+}
+
+# -----------------------------------------------------------------------------
 function pureline_ps1 {
   __return_code=$?      # save the return code
   PS1=""
